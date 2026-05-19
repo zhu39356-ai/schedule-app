@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="下班課表">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fdf6ec">
+<title>🌸 下班賣場準備課表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6ec;
+    --surface: #fffdf8;
+    --card: #ffffff;
+    --accent: #e8927c;
+    --accent-light: #fdeee9;
+    --accent2: #7cb8e8;
+    --accent2-light: #e9f3fd;
+    --green: #7dc89b;
+    --green-light: #e9f7ee;
+    --purple: #a98ee8;
+    --purple-light: #f0ebfd;
+    --text: #3d2e22;
+    --text2: #7a6255;
+    --text3: #b09884;
+    --border: #f0e6d8;
+    --border2: #e8d9c8;
+    --check-bg: #fdf0eb;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --shadow: 0 2px 12px rgba(61,46,34,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 130px;
+  }
+
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    background: none;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 14px 20px 12px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .app-title { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+
+  .progress-pill {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #f4c4b5;
+  }
+
+  .date-nav { display: flex; align-items: center; gap: 8px; }
+
+  .date-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border2);
+    border-radius: 10px;
+    width: 34px; height: 34px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text2);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .date-btn:active { background: var(--border); }
+
+  .date-display {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--card);
+    border: 1.5px solid var(--border2);
+    border-radius: 10px;
+    padding: 7px 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .date-display.today-indicator {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .progress-bar-wrap { margin: 0 20px; padding: 10px 0 14px; }
+  .progress-bar-bg { background: var(--border); border-radius: 10px; height: 8px; overflow: hidden; }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--accent) 0%, #f0b89a 100%);
+    height: 100%; border-radius: 10px;
+    transition: width 0.4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .main { padding: 14px 16px 0; }
+
+  .block-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s;
+  }
+
+  .block-card.done { border-color: var(--green); background: #fdfffe; }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 14px 12px;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .check-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2.5px solid var(--border2);
+    background: var(--check-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    font-size: 16px;
+  }
+
+  .check-btn.checked { background: var(--green); border-color: var(--green); color: white; }
+  .block-info { flex: 1; min-width: 0; }
+  .block-time { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.3px; margin-bottom: 2px; }
+  .block-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .block-subtitle { font-size: 12px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+  .expand-icon { font-size: 18px; color: var(--text3); flex-shrink: 0; transition: transform 0.2s; }
+  .block-card.expanded .expand-icon { transform: rotate(180deg); }
+  .note-area { display: none; padding: 0 14px 14px; border-top: 1.5px solid var(--border); }
+  .block-card.expanded .note-area { display: block; }
+  .note-label { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.5px; margin: 10px 0 5px; text-transform: uppercase; }
+  .note-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--text);
+    resize: none;
+    min-height: 72px;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .note-input:focus { border-color: var(--accent); background: white; }
+  .note-input::placeholder { color: var(--text3); }
+  .block-emoji { font-size: 22px; flex-shrink: 0; }
+
+  .bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1.5px solid var(--border);
+    padding: 12px 16px 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 13px 10px;
+    border-radius: 14px;
+    border: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .btn:active { opacity: 0.75; transform: scale(0.97); }
+  .btn-export { background: var(--accent); color: white; }
+  .btn-clear { background: var(--surface); color: var(--text2); border: 1.5px solid var(--border2); }
+  .btn-purple { background: var(--purple); color: white; }
+
+  .toast {
+    position: fixed;
+    bottom: 100px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 500;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,46,34,0.3);
+    z-index: 300;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-bg.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; text-align: center; }
+
+  .date-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .modal-btns { display: flex; gap: 10px; }
+
+  .install-hint {
+    margin: 0 16px 12px;
+    background: var(--accent2-light);
+    border: 1.5px solid #c4dcf4;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #4a7ca8;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .install-hint-close { margin-left: auto; cursor: pointer; font-size: 16px; color: #7aadce; flex-shrink: 0; }
+
+  .summary-strip { display: flex; gap: 10px; padding: 10px 16px; }
+
+  .stat-box {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 3px; }
+  .stat-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+  .check-btn.pop { animation: pop 0.35s ease; }
+
+  /* ══ WEEKLY ══ */
+  .week-header-inner { padding: 14px 20px 12px; }
+
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+
+  .week-display {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--card);
+    border: 1.5px solid var(--border2);
+    border-radius: 10px;
+    padding: 7px 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .week-display.this-week { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+
+  .week-pill {
+    background: var(--purple-light);
+    color: var(--purple);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #d4b8f5;
+  }
+
+  .week-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .week-stat-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .week-stat-num { font-size: 24px; font-weight: 700; color: var(--purple); line-height: 1; margin-bottom: 4px; }
+  .week-stat-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+
+  .week-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    margin: 16px 0 8px;
+  }
+
+  .day-summary-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+
+  .day-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .day-summary-date { font-size: 13px; font-weight: 700; color: var(--text); }
+
+  .day-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .day-pill.good { background: var(--green-light); color: var(--green); }
+  .day-pill.mid { background: var(--accent-light); color: var(--accent); }
+  .day-pill.low { background: var(--border); color: var(--text3); }
+
+  .day-note-item {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 3px;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .day-note-item::before { content: '›'; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
+  .day-empty { font-size: 12px; color: var(--text3); font-style: italic; }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 80px;
+    padding: 0 4px;
+  }
+
+  .chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .chart-bar { width: 100%; border-radius: 6px 6px 0 0; min-height: 4px; }
+  .chart-bar.has-data { background: var(--purple); }
+  .chart-bar.no-data { background: var(--border); }
+  .chart-day-label { font-size: 10px; color: var(--text3); font-weight: 700; }
+  .chart-pct-label { font-size: 10px; color: var(--purple); font-weight: 700; min-height: 14px; }
+
+  .review-form-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  .review-form-title { font-size: 15px; font-weight: 700; color: var(--purple); margin-bottom: 14px; }
+  .review-field { margin-bottom: 14px; }
+  .review-label { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 6px; display: block; }
+
+  .review-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--text);
+    resize: none;
+    min-height: 80px;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .review-input:focus { border-color: var(--purple); background: white; }
+  .review-input::placeholder { color: var(--text3); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabDaily" onclick="switchTab('daily')">📋 每日課表</button>
+  <button class="tab-btn" id="tabWeekly" onclick="switchTab('weekly')">📊 每週復盤</button>
+</div>
+
+<!-- ══ DAILY PAGE ══ -->
+<div id="dailyPage" class="page active">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">🌸 下班賣場課表</div>
+      <div class="progress-pill" id="progressPill">0/9 · 0%</div>
+    </div>
+    <div class="date-nav">
+      <button class="date-btn" onclick="changeDate(-1)">‹</button>
+      <div class="date-display" id="dateDisplay" onclick="openDateModal()"></div>
+      <button class="date-btn" onclick="changeDate(1)">›</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="installHint" class="install-hint">
+    <span>💡</span>
+    <span>加入桌面更方便：瀏覽器選單 → 「加到主畫面」！</span>
+    <span class="install-hint-close" onclick="dismissHint()">×</span>
+  </div>
+
+  <div class="summary-strip">
+    <div class="stat-box">
+      <div class="stat-num" id="statDone">0</div>
+      <div class="stat-label">完成項目</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statPct">0%</div>
+      <div class="stat-label">完成率</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statStreak">0</div>
+      <div class="stat-label">連續天數🔥</div>
+    </div>
+  </div>
+
+  <div class="main" id="mainBlocks"></div>
+
+</div>
+
+<!-- ══ WEEKLY PAGE ══ -->
+<div id="weeklyPage" class="page">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">📊 每週復盤</div>
+      <div class="week-pill" id="weekPill">---</div>
+    </div>
+    <div class="week-nav">
+      <button class="date-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="week-display" id="weekDisplay" onclick="jumpToThisWeek()">---</div>
+      <button class="date-btn" onclick="changeWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div style="padding:14px 16px 0;" id="weeklyContent"></div>
+
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar" id="bottomBar">
+  <button class="btn btn-clear" onclick="clearDay()">🗑 清除今天</button>
+  <button class="btn btn-export" onclick="exportText()">📋 匯出紀錄</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modalBg" onclick="closeDateModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">📅 選擇日期</div>
+    <input type="date" class="date-input" id="datePicker">
+    <div class="modal-btns">
+      <button class="btn btn-clear" onclick="closeDateModal()">取消</button>
+      <button class="btn btn-export" onclick="confirmDate()">確定跳轉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BLOCKS = [
+  { id:'b1', emoji:'🏠', time:'08:00－09:00', title:'回家整理', subtitle:'洗澡、喂狗、吃早餐',
+    notes:[{key:'n1',label:'今天狗狗狀況',placeholder:'毛孩今天乖不乖？'},{key:'n2',label:'身體狀況',placeholder:'精神好嗎？有沒有不舒服？'}] },
+  { id:'b2', emoji:'✨', time:'09:00－09:30', title:'靈感收集', subtitle:'看蝦皮、小紅書、淘寶、Pinkoi，找商品參考',
+    notes:[{key:'n1',label:'今天看到什麼',placeholder:'有什麼讓你眼睛一亮的商品？'},{key:'n2',label:'可以參考的點',placeholder:'哪些設計/定價/文案值得學習？'},{key:'n3',label:'不能學的地方',placeholder:'哪些做法你覺得不適合自己？'}] },
+  { id:'b3', emoji:'🔍', time:'09:30－10:30', title:'商品研究', subtitle:'只研究一個主題，不准亂跳',
+    notes:[{key:'n1',label:'今天研究主題',placeholder:'今天鎖定哪個商品類型？'},{key:'n2',label:'研究心得',placeholder:'發現什麼有趣的事情？'}] },
+  { id:'b4', emoji:'🐾', time:'10:30－11:00', title:'休息時間', subtitle:'陪狗、喝水、滑手機，但不要開新坑',
+    notes:[{key:'n1',label:'耍廢原因',placeholder:'今天摸魚了嗎？做了什麼放鬆？'}] },
+  { id:'b5', emoji:'🏪', time:'11:00－12:00', title:'賣場建設', subtitle:'寫文案、分類、規則、賣場設定',
+    notes:[{key:'n1',label:'今天做了什麼',placeholder:'更新了哪個頁面？寫了哪個文案？'},{key:'n2',label:'遇到困難',placeholder:'有什麼卡住的地方嗎？'}] },
+  { id:'b6', emoji:'📹', time:'12:00－12:40', title:'技術學習', subtitle:'看雷雕、滴膠、拍照、修圖影片',
+    notes:[{key:'n1',label:'今天學了什麼',placeholder:'看了什麼教學？學到哪個技巧？'},{key:'n2',label:'想練習的技術',placeholder:'下次想動手試試的是？'}] },
+  { id:'b7', emoji:'🎯', time:'12:40－13:20', title:'今日產出', subtitle:'一定要留下一個成果',
+    notes:[{key:'n1',label:'今天留下的成果',placeholder:'今天完成了什麼？哪怕只有一個小東西！'}] },
+  { id:'b8', emoji:'📝', time:'13:20－13:45', title:'明日待辦', subtitle:'寫明天 3 件事',
+    notes:[{key:'n1',label:'明天只做 3 件事',placeholder:'1. \n2. \n3. '}] },
+  { id:'b9', emoji:'😴', time:'13:45－14:00', title:'收尾', subtitle:'關電腦、準備睡覺',
+    notes:[{key:'n1',label:'今日心情',placeholder:'今天整體感覺如何？對自己說句話 💕'}] }
+];
+
+const REVIEW_FIELDS = [
+  { key:'r1', label:'✅ 本週實際完成了什麼', placeholder:'不管大小，都值得寫下來！' },
+  { key:'r2', label:'👀 本週看到哪些商品方向', placeholder:'哪些類型讓你覺得有機會？' },
+  { key:'r3', label:'🔥 本週最有機會的商品', placeholder:'如果只能選一個主攻，你選哪個？' },
+  { key:'r4', label:'😵 本週卡住原因', placeholder:'什麼事情讓你推不動？' },
+  { key:'r5', label:'⏰ 本週最浪費時間的是什麼', placeholder:'哪件事其實不需要花那麼多時間？' },
+  { key:'r6', label:'📌 下週主線任務 3 件事', placeholder:'1. \n2. \n3. ' }
+];
+
+let currentDate = todayStr();
+let currentWeekStart = getWeekStart(new Date());
+let data = loadAll();
+let weeklyData = loadWeekly();
+
+function todayStr() { return fmtDate(new Date()); }
+
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekStart(d) {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const mon = new Date(d);
+  mon.setDate(d.getDate() + diff);
+  return fmtDate(mon);
+}
+
+function getWeekDates(ws) {
+  const dates = [];
+  const start = new Date(ws + 'T12:00:00');
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    dates.push(fmtDate(d));
+  }
+  return dates;
+}
+
+function loadAll() { try { return JSON.parse(localStorage.getItem('scheduleData') || '{}'); } catch { return {}; } }
+function saveAll() { localStorage.setItem('scheduleData', JSON.stringify(data)); }
+function loadWeekly() { try { return JSON.parse(localStorage.getItem('weeklyReviewData') || '{}'); } catch { return {}; } }
+function saveWeekly() { localStorage.setItem('weeklyReviewData', JSON.stringify(weeklyData)); }
+
+function getDayData(ds) { if (!data[ds]) data[ds] = {}; return data[ds]; }
+function getDayDone(ds) { const d = data[ds] || {}; return BLOCKS.filter(b => d[b.id] && d[b.id].done).length; }
+
+function switchTab(tab) {
+  document.getElementById('dailyPage').classList.toggle('active', tab === 'daily');
+  document.getElementById('weeklyPage').classList.toggle('active', tab === 'weekly');
+  document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
+  document.getElementById('tabWeekly').classList.toggle('active', tab === 'weekly');
+  const bar = document.getElementById('bottomBar');
+  if (tab === 'weekly') {
+    bar.innerHTML = `<button class="btn btn-clear" onclick="clearWeekReview()">🗑 清除復盤</button><button class="btn btn-purple" onclick="exportWeekly()">📤 匯出復盤</button>`;
+    renderWeekly();
+  } else {
+    bar.innerHTML = `<button class="btn btn-clear" onclick="clearDay()">🗑 清除今天</button><button class="btn btn-export" onclick="exportText()">📋 匯出紀錄</button>`;
+  }
+}
+
+// ══ DAILY ══
+function render() {
+  const d = getDayData(currentDate);
+  const container = document.getElementById('mainBlocks');
+  container.innerHTML = '';
+  BLOCKS.forEach(block => {
+    const bd = d[block.id] || { done: false, notes: {} };
+    const isDone = bd.done;
+    const isExpanded = bd.expanded;
+    const card = document.createElement('div');
+    card.className = `block-card${isDone?' done':''}${isExpanded?' expanded':''}`;
+    card.id = `card-${block.id}`;
+    const noteFields = block.notes.map(n => {
+      const val = (bd.notes && bd.notes[n.key]) || '';
+      return `<div class="note-label">${n.label}</div>
+        <textarea class="note-input" rows="3" placeholder="${n.placeholder}"
+          oninput="saveNote('${block.id}','${n.key}',this.value)"
+          style="min-height:${n.key==='n1'&&block.id==='b8'?'90px':'72px'}"
+        >${escHtml(val)}</textarea>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="block-header" onclick="toggleExpand('${block.id}')">
+        <button class="check-btn${isDone?' checked':''}" id="chk-${block.id}"
+          onclick="event.stopPropagation();toggleDone('${block.id}')">${isDone?'✓':''}</button>
+        <div class="block-emoji">${block.emoji}</div>
+        <div class="block-info">
+          <div class="block-time">${block.time}</div>
+          <div class="block-title">${block.title}</div>
+          <div class="block-subtitle">${block.subtitle}</div>
+        </div>
+        <div class="expand-icon">▾</div>
+      </div>
+      <div class="note-area">${noteFields}</div>`;
+    container.appendChild(card);
+  });
+  updateProgress();
+  updateDateDisplay();
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleDone(blockId) {
+  const d = getDayData(currentDate);
+  if (!d[blockId]) d[blockId] = { done: false, notes: {} };
+  d[blockId].done = !d[blockId].done;
+  saveAll();
+  const btn = document.getElementById(`chk-${blockId}`);
+  const card = document.getElementById(`card-${blockId}`);
+  const isDone = d[blockId].done;
+  btn.textContent = isDone ? '✓' : '';
+  btn.className = `check-btn${isDone?' checked':''} pop`;
+  setTimeout(() => btn.classList.remove('pop'), 400);
+  card.className = `block-card${isDone?' done':''}${card.classList.contains('expanded')?' expanded':''}`;
+  updateProgress();
+  if (isDone) showToast('完成！繼續加油 🌸');
+}
+
+function toggleExpand(blockId) {
+  const d = getDayData(currentDate);
+  if (!d[blockId]) d[blockId] = { done: false, notes: {} };
+  d[blockId].expanded = !d[blockId].expanded;
+  saveAll();
+  document.getElementById(`card-${blockId}`).classList.toggle('expanded', d[blockId].expanded);
+}
+
+function saveNote(blockId, noteKey, val) {
+  const d = getDayData(currentDate);
+  if (!d[blockId]) d[blockId] = { done: false, notes: {} };
+  if (!d[blockId].notes) d[blockId].notes = {};
+  d[blockId].notes[noteKey] = val;
+  saveAll();
+}
+
+function updateProgress() {
+  const d = getDayData(currentDate);
+  let done = 0;
+  BLOCKS.forEach(b => { if (d[b.id] && d[b.id].done) done++; });
+  const pct = Math.round(done / BLOCKS.length * 100);
+  document.getElementById('progressPill').textContent = `${done}/${BLOCKS.length} · ${pct}%`;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statPct').textContent = pct + '%';
+  document.getElementById('statStreak').textContent = calcStreak();
+}
+
+function calcStreak() {
+  let streak = 0;
+  let d = new Date();
+  while (true) {
+    if (getDayDone(fmtDate(d)) === 0) break;
+    streak++;
+    d.setDate(d.getDate() - 1);
+    if (streak > 365) break;
+  }
+  return streak;
+}
+
+function updateDateDisplay() {
+  const el = document.getElementById('dateDisplay');
+  const isToday = currentDate === todayStr();
+  const [y, m, day] = currentDate.split('-');
+  const wd = ['日','一','二','三','四','五','六'][new Date(currentDate + 'T12:00:00').getDay()];
+  el.textContent = `${y}/${m}/${day}（週${wd}）${isToday?' · 今天':''}`;
+  el.className = 'date-display' + (isToday ? ' today-indicator' : '');
+}
+
+function changeDate(delta) {
+  const d = new Date(currentDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  currentDate = fmtDate(d);
+  render();
+}
+
+function openDateModal() {
+  document.getElementById('datePicker').value = currentDate;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function closeDateModal() { document.getElementById('modalBg').classList.remove('show'); }
+
+function confirmDate() {
+  const val = document.getElementById('datePicker').value;
+  if (val) { currentDate = val; render(); }
+  closeDateModal();
+}
+
+function clearDay() {
+  if (!confirm(`確定要清除 ${currentDate} 的所有紀錄嗎？`)) return;
+  delete data[currentDate];
+  saveAll();
+  render();
+  showToast('已清除今天的紀錄');
+}
+
+function exportText() {
+  const d = getDayData(currentDate);
+  let text = `📋 下班賣場準備課表\n📅 ${currentDate}\n` + '═'.repeat(28) + '\n\n';
+  let done = 0;
+  BLOCKS.forEach(block => {
+    const bd = d[block.id] || {};
+    if (bd.done) done++;
+    text += `${bd.done?'✅':'⬜'} ${block.time}\n   ${block.emoji} ${block.title}｜${block.subtitle}\n`;
+    if (bd.notes) {
+      block.notes.forEach(n => {
+        const val = bd.notes[n.key];
+        if (val && val.trim()) {
+          text += `\n   📌 ${n.label}\n`;
+          val.trim().split('\n').forEach(l => { text += `   ${l}\n`; });
+        }
+      });
+    }
+    text += '\n';
+  });
+  text += '═'.repeat(28) + '\n🌸 完成率：' + done + '/' + BLOCKS.length + '（' + Math.round(done/BLOCKS.length*100) + '%）\n';
+  shareOrCopy(text, `課表紀錄 ${currentDate}`);
+}
+
+// ══ WEEKLY ══
+function renderWeekly() {
+  const dates = getWeekDates(currentWeekStart);
+  const wk = currentWeekStart;
+  const wr = weeklyData[wk] || {};
+  const wdays = ['一','二','三','四','五','六','日'];
+
+  let activeDays = 0, totalDone = 0;
+  dates.forEach(d => { const c = getDayDone(d); if (c > 0) activeDays++; totalDone += c; });
+  const avgPct = Math.round(totalDone / (BLOCKS.length * 7) * 100);
+
+  const startD = new Date(currentWeekStart + 'T12:00:00');
+  const endD = new Date(dates[6] + 'T12:00:00');
+  const isThisWeek = currentWeekStart === getWeekStart(new Date());
+
+  document.getElementById('weekDisplay').textContent = `${fmtShort(startD)} ～ ${fmtShort(endD)}${isThisWeek?' · 本週':''}`;
+  document.getElementById('weekDisplay').className = 'week-display' + (isThisWeek ? ' this-week' : '');
+  document.getElementById('weekPill').textContent = `${activeDays}/7 天有紀錄`;
+
+  const barHTML = dates.map((d, i) => {
+    const cnt = getDayDone(d);
+    const pct = Math.round(cnt / BLOCKS.length * 100);
+    const hasData = cnt > 0;
+    return `<div class="chart-bar-wrap">
+      <div class="chart-pct-label">${hasData ? pct+'%' : ''}</div>
+      <div class="chart-bar ${hasData?'has-data':'no-data'}" style="height:${Math.max(pct,4)}%"></div>
+      <div class="chart-day-label">${wdays[i]}</div>
+    </div>`;
+  }).join('');
+
+  const daySummHTML = dates.map((d, i) => {
+    const dayData = data[d] || {};
+    const cnt = getDayDone(d);
+    const pct = Math.round(cnt / BLOCKS.length * 100);
+    const pillCls = pct >= 70 ? 'good' : pct >= 30 ? 'mid' : 'low';
+    const dateObj = new Date(d + 'T12:00:00');
+    const items = [];
+    const outcome = dayData['b7']?.notes?.n1;
+    if (outcome && outcome.trim()) items.push(`<span style="color:var(--text3);font-size:11px">今日成果：</span>${escHtml(outcome.trim().split('\n')[0])}`);
+    const seen = dayData['b2']?.notes?.n1;
+    if (seen && seen.trim()) items.push(`<span style="color:var(--text3);font-size:11px">看到：</span>${escHtml(seen.trim().split('\n')[0])}`);
+    const todo = dayData['b8']?.notes?.n1;
+    if (todo && todo.trim()) items.push(`<span style="color:var(--text3);font-size:11px">待辦：</span>${escHtml(todo.trim().split('\n')[0])}`);
+    return `<div class="day-summary-card">
+      <div class="day-summary-header">
+        <div class="day-summary-date">${fmtShort(dateObj)}（週${wdays[i]}）</div>
+        <div class="day-pill ${pillCls}">${cnt}/${BLOCKS.length} · ${pct}%</div>
+      </div>
+      ${items.length > 0
+        ? items.map(it => `<div class="day-note-item">${it}</div>`).join('')
+        : `<div class="day-empty">這天沒有留下筆記</div>`}
+    </div>`;
+  }).join('');
+
+  const reviewHTML = REVIEW_FIELDS.map(f => `
+    <div class="review-field">
+      <label class="review-label">${f.label}</label>
+      <textarea class="review-input" placeholder="${f.placeholder}"
+        oninput="saveReview('${wk}','${f.key}',this.value)"
+      >${escHtml(wr[f.key] || '')}</textarea>
+    </div>`).join('');
+
+  document.getElementById('weeklyContent').innerHTML = `
+    <div class="week-stats">
+      <div class="week-stat-box"><div class="week-stat-num">${activeDays}<span style="font-size:13px;color:var(--text3)">/7</span></div><div class="week-stat-label">有紀錄天數</div></div>
+      <div class="week-stat-box"><div class="week-stat-num">${totalDone}</div><div class="week-stat-label">總完成項目</div></div>
+      <div class="week-stat-box"><div class="week-stat-num">${avgPct}%</div><div class="week-stat-label">平均完成率</div></div>
+      <div class="week-stat-box"><div class="week-stat-num">${activeDays}</div><div class="week-stat-label">本週活躍天🔥</div></div>
+    </div>
+    <div class="week-section-title">📈 本週每日完成率</div>
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 10px 10px;margin-bottom:6px;">
+      <div class="chart-bars">${barHTML}</div>
+    </div>
+    <div class="week-section-title">📅 每日紀錄摘要</div>
+    ${daySummHTML}
+    <div class="review-form-card">
+      <div class="review-form-title">✍️ 每週復盤表單</div>
+      ${reviewHTML}
+    </div>`;
+}
+
+function fmtShort(d) { return `${d.getMonth()+1}/${d.getDate()}`; }
+
+function saveReview(wk, fk, val) {
+  if (!weeklyData[wk]) weeklyData[wk] = {};
+  weeklyData[wk][fk] = val;
+  saveWeekly();
+}
+
+function changeWeek(delta) {
+  const d = new Date(currentWeekStart + 'T12:00:00');
+  d.setDate(d.getDate() + delta * 7);
+  currentWeekStart = fmtDate(d);
+  renderWeekly();
+}
+
+function jumpToThisWeek() {
+  currentWeekStart = getWeekStart(new Date());
+  renderWeekly();
+}
+
+function clearWeekReview() {
+  if (!confirm('確定要清除本週復盤表單嗎？（每日打卡紀錄不受影響）')) return;
+  delete weeklyData[currentWeekStart];
+  saveWeekly();
+  renderWeekly();
+  showToast('已清除本週復盤');
+}
+
+function exportWeekly() {
+  const dates = getWeekDates(currentWeekStart);
+  const wdays = ['一','二','三','四','五','六','日'];
+  const wr = weeklyData[currentWeekStart] || {};
+  const startD = new Date(currentWeekStart + 'T12:00:00');
+  const endD = new Date(dates[6] + 'T12:00:00');
+  let activeDays = 0, totalDone = 0;
+  dates.forEach(d => { const c = getDayDone(d); if (c>0) activeDays++; totalDone += c; });
+  const avgPct = Math.round(totalDone / (BLOCKS.length * 7) * 100);
+
+  let text = `📊 每週復盤報告\n📅 ${fmtDate(startD)} ～ ${fmtDate(endD)}\n` + '═'.repeat(28) + '\n\n';
+  text += `📈 本週統計\n  有紀錄天數：${activeDays}/7 天\n  總完成項目：${totalDone} 項\n  平均完成率：${avgPct}%\n\n`;
+  text += `📅 每日摘要\n`;
+  dates.forEach((d, i) => {
+    const cnt = getDayDone(d);
+    const pct = Math.round(cnt / BLOCKS.length * 100);
+    const dateObj = new Date(d + 'T12:00:00');
+    text += `  ${fmtShort(dateObj)}（週${wdays[i]}）${cnt}/${BLOCKS.length} · ${pct}%\n`;
+    const outcome = (data[d] || {})['b7']?.notes?.n1;
+    if (outcome && outcome.trim()) text += `    成果：${outcome.trim().split('\n')[0]}\n`;
+  });
+  text += '\n' + '═'.repeat(28) + '\n\n✍️ 復盤表單\n\n';
+  REVIEW_FIELDS.forEach(f => {
+    const val = wr[f.key];
+    if (val && val.trim()) {
+      text += `${f.label}\n`;
+      val.trim().split('\n').forEach(l => { text += `  ${l}\n`; });
+      text += '\n';
+    }
+  });
+  text += '═'.repeat(28) + '\n🌸 繼續加油！每一週都是新的開始。\n';
+  shareOrCopy(text, `每週復盤 ${fmtDate(startD)}`);
+}
+
+function shareOrCopy(text, title) {
+  if (navigator.share) {
+    navigator.share({ title, text }).catch(() => copyToClipboard(text));
+  } else {
+    copyToClipboard(text);
+  }
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼板 📋'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('已複製到剪貼板 📋');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function dismissHint() {
+  document.getElementById('installHint').style.display = 'none';
+  localStorage.setItem('hintDismissed', '1');
+}
+
+if (localStorage.getItem('hintDismissed')) {
+  document.getElementById('installHint').style.display = 'none';
+}
+
+render();
+</script>
+</body>
+</html>
